@@ -55,3 +55,14 @@ func ConfirmSignUp(confirm request.ConfirmSignUpRequest) (string, error) {
 	return "User confirmed successfully", nil
 
 }
+
+func SocialLogin(auth request.SocialLogin) {
+
+	succes, err := RegisterWithGoogleToken(auth.Token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response.SignInResponse{User: userEntity, Token: token}, nil
+}

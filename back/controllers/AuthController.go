@@ -71,15 +71,33 @@ func ConfirmEmail() (string, http.HandlerFunc) {
 	}
 }
 
+func SocialLogin() (string, http.HandlerFunc) {
+	return "/socialLogin", func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Content-Type", "application/json")
+		var auth request.SocialLogin
+
+		err := json.NewDecoder(r.Body).Decode(&auth)
+		if err != nil {
+			json.NewEncoder(w).Encode("Invalid request")
+		}
+
+		if r.Method == http.MethodPost {
+			resp, erro := services.SocialLogin(auth)
+			responseManager(w, resp, erro)
+		} else {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
 func GetAuthEndPoints() []func() (string, http.HandlerFunc) {
 
-	authEndPoints := []func() (string, http.HandlerFunc){
+	return []func() (string, http.HandlerFunc){
 		LoginHandler,
 		RegisterHandler,
 		ConfirmEmail,
 	}
-
-	return authEndPoints
 }
 
 func responseManager(w http.ResponseWriter, resp any, erro error) {
