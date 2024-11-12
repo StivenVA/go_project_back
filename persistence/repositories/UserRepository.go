@@ -31,5 +31,10 @@ func CreateUser(user entities.User) (entities.User, error) {
 		return entities.User{}, err.Error
 	}
 
+	erro := CreateSubscription(user.Id)
+	if erro != nil {
+		return entities.User{}, erro
+	}
+
 	return user, nil
 }

@@ -3,8 +3,8 @@ package entities
 type User struct {
 	Id      uint   `json:"user_id" gorm:"primaryKey"`
 	Name    string `json:"user_name" gorm:"not null"`
-	Email   string `json:"user_email" gorm:"not null"`
-	UserSub string `json:"user_sub" gorm:"not null"`
+	Email   string `json:"user_email" gorm:"not null" gorm:"unique"`
+	UserSub string `json:"user_sub" gorm:"not null" gorm:"unique"`
 	Phone   string `json:"user_phone" gorm:"not null"`
 }
 

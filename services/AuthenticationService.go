@@ -92,3 +92,13 @@ func SocialLogin(auth request.SocialLogin) (response.SignInResponse, error) {
 
 	return response.SignInResponse{User: userEntity, Token: *idToken}, nil
 }
+
+func ResendConfirmationCode(resend request.ResendConfirmationCodeRequest) (string, error) {
+	err := CognitoResendConfirmationCode(resend.Email)
+
+	if err != nil {
+		return "", err
+	}
+
+	return "Confirmation code sent successfully", nil
+}

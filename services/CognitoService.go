@@ -23,6 +23,21 @@ func CognitoIdentityProvider() *cognitoidentityprovider.CognitoIdentityProvider 
 
 }
 
+func CognitoResendConfirmationCode(email string) error {
+	cognitoClient := CognitoIdentityProvider()
+
+	_, err := cognitoClient.ResendConfirmationCode(&cognitoidentityprovider.ResendConfirmationCodeInput{
+		ClientId: aws.String("6ko7nskvvfd8km2gmq2ij2tb81"), // Reemplaza con el ID de tu app client de Cognito
+		Username: aws.String(email),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CognitoLogin(req request.AuthUser) (*cognitoidentityprovider.AuthenticationResultType, error) {
 	authInput := &cognitoidentityprovider.InitiateAuthInput{
 		AuthFlow: aws.String("USER_PASSWORD_AUTH"),

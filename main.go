@@ -11,7 +11,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	authEndPoints := controllers.GetAuthEndPoints()
+	authEndPoints := controllers.GetEndPoints()
 
 	for _, endPoint := range authEndPoints {
 		path, handler := endPoint()

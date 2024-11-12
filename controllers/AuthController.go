@@ -1,23 +1,17 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 	"proyecto_go/DTO/request"
-	"proyecto_go/DTO/response"
 	"proyecto_go/services"
 )
 
 func LoginHandler() (string, http.HandlerFunc) {
 	return "/login", func(w http.ResponseWriter, r *http.Request) {
 
-		w.Header().Set("Content-Type", "application/json")
 		var auth request.AuthUser
 
-		err := json.NewDecoder(r.Body).Decode(&auth)
-		if err != nil {
-			json.NewEncoder(w).Encode("Invalid request")
-		}
+		decodeRequest(w, r, &auth)
 
 		if r.Method == http.MethodPost {
 			resp, erro := services.Login(auth)
@@ -31,14 +25,9 @@ func LoginHandler() (string, http.HandlerFunc) {
 func RegisterHandler() (string, http.HandlerFunc) {
 	return "/signup", func(w http.ResponseWriter, r *http.Request) {
 
-		w.Header().Set("Content-Type", "application/json")
 		var regist request.RegisterRequest
 
-		err := json.NewDecoder(r.Body).Decode(&regist)
-		if err != nil {
-			json.NewEncoder(w).Encode("Invalid request")
-			return
-		}
+		decodeRequest(w, r, &regist)
 
 		if r.Method == http.MethodPost {
 			resp, erro := services.SignUp(regist)
@@ -53,14 +42,9 @@ func RegisterHandler() (string, http.HandlerFunc) {
 func ConfirmEmail() (string, http.HandlerFunc) {
 	return "/confirmEmail", func(w http.ResponseWriter, r *http.Request) {
 
-		w.Header().Set("Content-Type", "application/json")
 		var confirm request.ConfirmSignUpRequest
 
-		err := json.NewDecoder(r.Body).Decode(&confirm)
-		if err != nil {
-			json.NewEncoder(w).Encode("Invalid request")
-			return
-		}
+		decodeRequest(w, r, &confirm)
 
 		if r.Method == http.MethodPost {
 			resp, erro := services.ConfirmSignUp(confirm)
@@ -74,13 +58,9 @@ func ConfirmEmail() (string, http.HandlerFunc) {
 func SocialLogin() (string, http.HandlerFunc) {
 	return "/socialLogin", func(w http.ResponseWriter, r *http.Request) {
 
-		w.Header().Set("Content-Type", "application/json")
 		var auth request.SocialLogin
 
-		err := json.NewDecoder(r.Body).Decode(&auth)
-		if err != nil {
-			json.NewEncoder(w).Encode("Invalid request")
-		}
+		decodeRequest(w, r, &auth)
 
 		if r.Method == http.MethodPost {
 			resp, erro := services.SocialLogin(auth)
@@ -91,30 +71,18 @@ func SocialLogin() (string, http.HandlerFunc) {
 	}
 }
 
-func GetAuthEndPoints() []func() (string, http.HandlerFunc) {
+func ResendConfirmationCode() (string, http.HandlerFunc) {
+	return "/resendConfirmationCode", func(w http.ResponseWriter, r *http.Request) {
 
-	return []func() (string, http.HandlerFunc){
-		LoginHandler,
-		RegisterHandler,
-		ConfirmEmail,
-		SocialLogin,
+		var resend request.ResendConfirmationCodeRequest
+
+		decodeRequest(w, r, &resend)
+
+		if r.Method == http.MethodPost {
+			resp, erro := services.ResendConfirmationCode(resend)
+			responseManager(w, resp, erro)
+		} else {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		}
 	}
-}
-
-func responseManager(w http.ResponseWriter, resp any, erro error) {
-
-	if erro != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		json.NewEncoder(w).Encode(response.ResponseEntity{
-			Message: erro.Error(),
-			Status:  http.StatusInternalServerError,
-		})
-	} else {
-		json.NewEncoder(w).Encode(response.ResponseEntity{
-			Status: http.StatusOK,
-			Data:   resp,
-		})
-	}
-
 }
