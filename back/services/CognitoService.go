@@ -4,15 +4,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
+	"github.com/golang-jwt/jwt/v4"
 	"google.golang.org/api/idtoken"
 	"proyecto_go/DTO/request"
 )
 
 func CognitoIdentityProvider() *cognitoidentityprovider.CognitoIdentityProvider {
+	var accessKey = "AKIARYEUCVDBBODPUH42"
+	var secretKey = "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"
+
 	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"), // Reemplaza con tu región
+		Region:      aws.String("us-east-1"), // Reemplaza con tu región
+		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
 	}))
 	return cognitoidentityprovider.New(sess)
 
@@ -80,19 +86,23 @@ func CognitoConfirmSignUp(confirmSignUp request.ConfirmSignUpRequest) error {
 	return nil
 }
 
-func RegisterWithGoogleToken(googleToken string) (*cognitoidentityprovider.AuthenticationResultType, error) {
-	// Crear contexto
+func GetAttributes(googleToken string) (map[string]interface{}, error) {
 	ctx := context.Background()
-
-	// Verificar token de Google y obtener payload
 	payload, err := idtoken.Validate(ctx, googleToken, "")
 	if err != nil {
 		return nil, fmt.Errorf("error verificando token de Google: %v", err)
 	}
 
+	return payload.Claims, nil
+}
+
+func RegisterWithGoogleToken(googleToken string) (*cognitoidentityprovider.AuthenticationResultType, error) {
+	payload, err := GetAttributes(googleToken)
 	// Extraer el correo y el ID único (sub) del payload de Google
-	email, ok := payload.Claims["email"].(string)
-	sub, ok := payload.Claims["sub"].(string)
+	email, ok := payload["email"].(string)
+	sub, ok := payload["sub"].(string)
+
+	password := passwordGenerator(sub)
 
 	if !ok || email == "" || sub == "" {
 		return nil, fmt.Errorf("no se encontró el correo o el ID de usuario en el token de Google")
@@ -100,25 +110,29 @@ func RegisterWithGoogleToken(googleToken string) (*cognitoidentityprovider.Authe
 
 	// Registrar en Cognito usando el correo como username y el sub como contraseña
 	cognitoClient := CognitoIdentityProvider()
-	signUpInput := &cognitoidentityprovider.SignUpInput{
-		ClientId: aws.String("6ko7nskvvfd8km2gmq2ij2tb81"), // Reemplaza con tu ClientId de Cognito
-		Username: aws.String(email),
-		Password: aws.String(sub),
-		UserAttributes: []*cognitoidentityprovider.AttributeType{
-			{
-				Name:  aws.String("email"),
-				Value: aws.String(email),
-			},
-		},
-	}
+	_, err = CognitoSignUp(email, password)
 
-	// Intentar registro en Cognito
-	_, err = cognitoClient.SignUp(signUpInput)
+	if err != nil && err.Error() == "UsernameExistsException: User already exists" {
+
+		return CognitoLogin(request.AuthUser{
+			Email:    email,
+			Password: password,
+		})
+	}
 	if err != nil {
 		return nil, fmt.Errorf("error registrando en Cognito: %v", err)
 	}
 
-	// Confirmar automáticamente el correo
+	// Confirmar el usuario (activar la cuenta) en Cognito
+	_, err = cognitoClient.AdminConfirmSignUp(&cognitoidentityprovider.AdminConfirmSignUpInput{
+		UserPoolId: aws.String("us-east-1_j9e5Ladu8"), // Reemplaza con tu UserPoolId de Cognito
+		Username:   aws.String(email),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error confirmando el registro en Cognito: %v", err)
+	}
+
+	// Confirmar el correo como verificado
 	_, err = cognitoClient.AdminUpdateUserAttributes(&cognitoidentityprovider.AdminUpdateUserAttributesInput{
 		UserPoolId: aws.String("us-east-1_j9e5Ladu8"), // Reemplaza con tu UserPoolId de Cognito
 		Username:   aws.String(email),
@@ -135,10 +149,27 @@ func RegisterWithGoogleToken(googleToken string) (*cognitoidentityprovider.Authe
 
 	return CognitoLogin(request.AuthUser{
 		Email:    email,
-		Password: sub,
+		Password: password,
 	})
 }
 
-func ParseToken(token string) string {
-	return ""
+func passwordGenerator(sub string) string {
+	return sub + "Aa!"
+}
+
+func ExtractSubClaim(tokenStr string) (string, error) {
+	// Parsear el token sin validar la firma.
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenStr, jwt.MapClaims{})
+	if err != nil {
+		return "", fmt.Errorf("error al parsear el token: %v", err)
+	}
+
+	// Obtener los claims
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if sub, ok := claims["sub"].(string); ok {
+			return sub, nil
+		}
+		return "", fmt.Errorf("claim 'sub' no encontrado en el token")
+	}
+	return "", fmt.Errorf("no se pudieron obtener los claims")
 }

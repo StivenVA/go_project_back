@@ -9,7 +9,7 @@ func FindUserBySub(sub string) entities.User {
 
 	db := persistence.GetConnection()
 	var user entities.User
-	db.Where("sub = ?", sub).First(&user)
+	db.Where("user_sub = ?", sub).First(&user)
 	return user
 
 }

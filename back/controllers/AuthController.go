@@ -97,12 +97,15 @@ func GetAuthEndPoints() []func() (string, http.HandlerFunc) {
 		LoginHandler,
 		RegisterHandler,
 		ConfirmEmail,
+		SocialLogin,
 	}
 }
 
 func responseManager(w http.ResponseWriter, resp any, erro error) {
 
 	if erro != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+
 		json.NewEncoder(w).Encode(response.ResponseEntity{
 			Message: erro.Error(),
 			Status:  http.StatusInternalServerError,

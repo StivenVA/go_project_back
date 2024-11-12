@@ -56,13 +56,39 @@ func ConfirmSignUp(confirm request.ConfirmSignUpRequest) (string, error) {
 
 }
 
-func SocialLogin(auth request.SocialLogin) {
+func SocialLogin(auth request.SocialLogin) (response.SignInResponse, error) {
 
 	succes, err := RegisterWithGoogleToken(auth.Token)
 
 	if err != nil {
-		return nil, err
+		return response.SignInResponse{}, err
 	}
 
-	return response.SignInResponse{User: userEntity, Token: token}, nil
+	attributes, err := GetAttributes(auth.Token)
+
+	if err != nil {
+		return response.SignInResponse{}, err
+	}
+
+	sub, err := ExtractSubClaim(*succes.IdToken)
+
+	var userEntity entities.User
+
+	userEntity = repositories.FindUserBySub(sub)
+
+	if userEntity.UserSub != "" {
+		return response.SignInResponse{User: userEntity, Token: *succes.IdToken}, nil
+	}
+
+	userEntity = entities.User{
+		Email:   attributes["email"].(string),
+		Name:    attributes["name"].(string),
+		UserSub: sub,
+	}
+
+	userEntity, err = repositories.CreateUser(userEntity)
+
+	idToken := succes.IdToken
+
+	return response.SignInResponse{User: userEntity, Token: *idToken}, nil
 }
