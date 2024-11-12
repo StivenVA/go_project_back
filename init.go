@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
 	"proyecto_go/persistence"
 	"proyecto_go/persistence/entities"
@@ -10,12 +12,26 @@ import (
 
 func init() {
 
-	entitiesdb := []entities.EntityInterface{&entities.User{}, &entities.SubscriptionDetail{}, &entities.Notifications{}, &entities.Payment{}, &entities.UserSubscription{}}
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error cargando el archivo .env: %v", err)
+	}
+
+	entitiesdb := []entities.EntityInterface{
+		&entities.User{},
+		&entities.SubscriptionDetail{},
+		&entities.Notifications{},
+		&entities.Payment{},
+		&entities.UserSubscription{},
+		&entities.Category{},
+	}
 
 	db, err := persistence.ConnectDB()
 	if err != nil {
 		panic(err)
 	}
+
+	persistence.SetConnection(db)
 
 	for _, entity := range entitiesdb {
 		err = db.AutoMigrate(entity)
