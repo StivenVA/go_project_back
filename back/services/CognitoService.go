@@ -15,12 +15,9 @@ import (
 
 func CognitoIdentityProvider() *cognitoidentityprovider.CognitoIdentityProvider {
 
-	accessKey := os.Getenv("AWS_ACCESS_KEY")
-	secretKey := os.Getenv("AWS_SECRET_KEY")
-
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"), // Reemplaza con tu región
-		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
+		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY"), ""),
 	}))
 	return cognitoidentityprovider.New(sess)
 
