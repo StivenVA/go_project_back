@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
 	"proyecto_go/persistence"
 	"proyecto_go/persistence/entities"
@@ -9,6 +11,11 @@ import (
 )
 
 func init() {
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error cargando el archivo .env: %v", err)
+	}
 
 	entitiesdb := []entities.EntityInterface{
 		&entities.User{},

@@ -9,12 +9,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/golang-jwt/jwt/v4"
 	"google.golang.org/api/idtoken"
+	"os"
 	"proyecto_go/DTO/request"
 )
 
 func CognitoIdentityProvider() *cognitoidentityprovider.CognitoIdentityProvider {
-	var accessKey = "AKIARYEUCVDBBODPUH42"
-	var secretKey = "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"
+
+	accessKey := os.Getenv("AWS_ACCESS_KEY")
+	secretKey := os.Getenv("AWS_SECRET_KEY")
 
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region:      aws.String("us-east-1"), // Reemplaza con tu región
