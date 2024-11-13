@@ -46,5 +46,7 @@ func GetEndPoints() []func() (string, http.HandlerFunc) {
 		ResendConfirmationCode,
 		CreateSubscription,
 		GetSubscriptions,
+		CreateCategory,
+		GetCategories,
 	}
 }

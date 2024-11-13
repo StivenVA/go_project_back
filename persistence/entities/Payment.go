@@ -3,11 +3,12 @@ package entities
 import "time"
 
 type Payment struct {
-	Id                 uint                 `json:"payment_id" gorm:"primaryKey"`
-	SubscriptionDetail []SubscriptionDetail `json:"subscription_detail" gorm:"foreignKey:SubscriptionId"`
-	Date               time.Time            `json:"payment_date" gorm:"type:datetime;default:current_timestamp"`
-	Amount             float64              `json:"payment_amount"`
-	Status             StatusPayment        `json:"payment_status"`
+	Id                 uint               `json:"payment_id" gorm:"primaryKey"`
+	Date               time.Time          `json:"payment_date" gorm:"type:datetime;default:current_timestamp"`
+	Amount             float64            `json:"payment_amount"`
+	Status             StatusPayment      `json:"payment_status" gorm:"type:enum('PENDING', 'SUCCESS', 'FAILED', 'CANCELLED', 'ERROR');default:'PENDING'"`
+	SubscriptionId     uint               `json:"subscription_id"`
+	SubscriptionDetail SubscriptionDetail `gorm:"foreignKey:SubscriptionId;references:Id"`
 }
 
 func (p *Payment) DBTableName() string {
@@ -19,5 +20,5 @@ func (p *Payment) EntityName() string {
 }
 
 func (p *Payment) EntityFields() []string {
-	return []string{"Id","SubscriptionDetail","Date","Amount","Status"}
+	return []string{"Id", "SubscriptionDetail", "Date", "Amount", "Status"}
 }

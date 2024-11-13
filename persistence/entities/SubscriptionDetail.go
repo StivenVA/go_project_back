@@ -34,7 +34,7 @@ func (s *SubscriptionDetail) ToDTO() response.SubscriptionDTO {
 	}
 }
 
-func ToDTOList(subscriptions []SubscriptionDetail) []response.SubscriptionDTO {
+func SubscriptionsToDTOList(subscriptions []SubscriptionDetail) []response.SubscriptionDTO {
 	var subscriptionList []response.SubscriptionDTO
 	for _, subscription := range subscriptions {
 		subscriptionList = append(subscriptionList, subscription.ToDTO())

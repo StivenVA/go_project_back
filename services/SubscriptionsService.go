@@ -58,7 +58,7 @@ func GetSubscriptions(idToken string) (any, error) {
 	subscriptionResponse := response.SubscriptionResponse{
 		Id:            subscription.Id,
 		UserId:        user.Id,
-		Subscriptions: entities.ToDTOList(subscription.SubscriptionDetail),
+		Subscriptions: entities.SubscriptionsToDTOList(subscription.SubscriptionDetail),
 		UserName:      user.Name,
 	}
 
@@ -67,4 +67,62 @@ func GetSubscriptions(idToken string) (any, error) {
 	}
 
 	return subscriptionResponse, nil
+}
+
+func CreateCategory(idToken string, categoryDTO response.CategoryDTO) (any, error) {
+
+	sub, err := ExtractSubClaim(idToken)
+
+	if err != nil {
+		return "Error extracting sub claim", err
+	}
+
+	user := repositories.FindUserBySub(sub)
+
+	if user.Id == 0 {
+		return "User not found", errors.New("User not found")
+	}
+
+	category, err := repositories.CreateCategory(entities.Category{
+		Name:   categoryDTO.Name,
+		UserId: user.Id,
+	})
+
+	if err != nil {
+		return "Error creating category", err
+	}
+
+	return category, nil
+}
+
+func GetCategories(idToken string) (any, error) {
+
+	sub, err := ExtractSubClaim(idToken)
+
+	if err != nil {
+		return "Error extracting sub claim", err
+	}
+
+	user := repositories.FindUserBySub(sub)
+
+	if user.Id == 0 {
+		return "User not found", errors.New("User not found")
+	}
+
+	categories := repositories.GetCategoriesByUserSub(sub)
+
+	if len(categories) == 0 {
+		return "Categories not found", errors.New("Categories not found")
+	}
+
+	var categoriesDTO []response.CategoryDTO
+
+	for i := range categories {
+		categoriesDTO = append(categoriesDTO, response.CategoryDTO{
+			Id:   categories[i].Id,
+			Name: categories[i].Name,
+		})
+	}
+
+	return categoriesDTO, nil
 }

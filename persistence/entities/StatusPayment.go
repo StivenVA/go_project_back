@@ -1,11 +1,11 @@
 package entities
 
-type StatusPayment int
+type StatusPayment string
 
 const (
-	Pending StatusPayment = iota
-	Success
-	Failed
-	Cancelled
-	Error
+	Pending   StatusPayment = "PENDING"
+	Success   StatusPayment = "SUCCESS"
+	Failed    StatusPayment = "FAILED"
+	Cancelled StatusPayment = "CANCELLED"
+	Error     StatusPayment = "ERROR"
 )
