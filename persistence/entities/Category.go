@@ -1,9 +1,9 @@
 package entities
 
 type Category struct {
-	ID     int    `json:"id"`
+	Id     uint   `json:"id" gorm:"primaryKey"`
 	Name   string `json:"name"`
-	UserId int    `json:"user_id"`
+	UserId uint   `json:"user_id"`
 	User   User   `gorm:"foreignKey:UserId;references:Id"`
 }
 

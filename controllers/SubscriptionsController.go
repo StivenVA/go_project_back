@@ -23,3 +23,17 @@ func CreateSubscription() (string, http.HandlerFunc) {
 		}
 	}
 }
+
+func GetSubscriptions() (string, http.HandlerFunc) {
+	return "/getSubscriptions", func(w http.ResponseWriter, r *http.Request) {
+
+		var idToken = r.Header.Get("IdToken")
+
+		if r.Method == http.MethodGet {
+			resp, erro := services.GetSubscriptions(idToken)
+			responseManager(w, resp, erro)
+		} else {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		}
+	}
+}

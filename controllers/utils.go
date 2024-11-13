@@ -45,5 +45,6 @@ func GetEndPoints() []func() (string, http.HandlerFunc) {
 		SocialLogin,
 		ResendConfirmationCode,
 		CreateSubscription,
+		GetSubscriptions,
 	}
 }

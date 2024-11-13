@@ -43,5 +43,11 @@ func FindSubscriptionByUserSub(sub string) entities.UserSubscription {
 
 	db.Where("subscription_id = ?", subscription.Id).First(&subscription.SubscriptionDetail)
 
+	for i := range subscription.SubscriptionDetail {
+		var category entities.Category
+		db.Where("id = ?", subscription.SubscriptionDetail[i].CategoryId).First(&category)
+		subscription.SubscriptionDetail[i].Category = category
+	}
+
 	return subscription
 }

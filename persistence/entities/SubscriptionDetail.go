@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"proyecto_go/DTO/response"
+	"time"
+)
 
 type SubscriptionDetail struct {
 	Id               uint             `json:"subscription_detail_id" gorm:"primaryKey"`
@@ -13,6 +16,31 @@ type SubscriptionDetail struct {
 	CategoryId       uint             `json:"category_id"`
 	Category         Category         `gorm:"foreignKey:CategoryId;references:Id"`
 	UserSubscription UserSubscription `gorm:"foreignKey:SubscriptionId;references:Id"`
+}
+
+func (s *SubscriptionDetail) ToDTO() response.SubscriptionDTO {
+	var categoryDTO = response.CategoryDTO{
+		Id:   s.Category.Id,
+		Name: s.Category.Name,
+	}
+
+	return response.SubscriptionDTO{
+		Service:          s.Service,
+		Cost:             s.Cost,
+		PaymentFrequency: s.PaymentFrequency,
+		Deadline:         s.Deadline,
+		StartDate:        s.StartDate,
+		Category:         categoryDTO,
+	}
+}
+
+func ToDTOList(subscriptions []SubscriptionDetail) []response.SubscriptionDTO {
+	var subscriptionList []response.SubscriptionDTO
+	for _, subscription := range subscriptions {
+		subscriptionList = append(subscriptionList, subscription.ToDTO())
+	}
+	return subscriptionList
+
 }
 
 func (s *SubscriptionDetail) DBTableName() string {
