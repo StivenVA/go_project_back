@@ -12,7 +12,7 @@ type SubscriptionDetail struct {
 	Cost             float64          `json:"subscription_cost"`
 	Deadline         time.Time        `json:"subscription_deadline" gorm:"type:datetime;default:current_timestamp"`
 	StartDate        time.Time        `json:"subscription_start_date" gorm:"type:datetime;default:current_timestamp"`
-	PaymentFrequency string           `json:"subscription_payment_frequency"`
+	PaymentFrequency PaymentFrequency `json:"subscription_payment_frequency" gorm:"type:enum('DAILY', 'WEEKLY', 'MONTHLY', 'ANNUALLY');default:'MONTHLY'"`
 	CategoryId       uint             `json:"category_id"`
 	Category         Category         `gorm:"foreignKey:CategoryId;references:Id"`
 	UserSubscription UserSubscription `gorm:"foreignKey:SubscriptionId;references:Id"`

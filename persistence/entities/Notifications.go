@@ -3,13 +3,13 @@ package entities
 import "time"
 
 type Notifications struct {
-	Id                 uint                 `json:"notification_id" gorm:"primaryKey"`
-	UserId             uint                 `json:"user_id"` // Definimos la relación abajo, no en este campo
-	SubscriptionDetail []SubscriptionDetail `json:"subscription_detail" gorm:"foreignKey:SubscriptionId;references:Id"`
-	Date               time.Time            `json:"notification_date" gorm:"type:datetime;default:CURRENT_TIMESTAMP"`
-	Status             string               `json:"notification_status" gorm:"not null;enum:('PENDING','SENT','READ')"`
-	Message            string               `json:"notification_message" gorm:"not null"`
-	User               User                 `gorm:"foreignKey:UserId;references:Id"` // Relación con la tabla Users
+	Id                  uint                 `json:"notification_id" gorm:"primaryKey"`
+	UserId              uint                 `json:"user_id"` // Definimos la relación abajo, no en este campo
+	SubscriptionDetail  []SubscriptionDetail `json:"subscription_detail" gorm:"foreignKey:SubscriptionId;references:Id"`
+	NotificationDate    time.Time            `json:"notification_date" gorm:"type:datetime;default:CURRENT_TIMESTAMP"`
+	NotificationStatus  string               `json:"notification_status" gorm:"not null;enum:('PENDING','SENT','READ')"`
+	NotificationMessage string               `json:"notification_message" gorm:"not null"`
+	User                User                 `gorm:"foreignKey:UserId;references:Id"` // Relación con la tabla Users
 }
 
 func (n *Notifications) DBTableName() string {
