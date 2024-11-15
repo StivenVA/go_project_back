@@ -5,14 +5,14 @@ import (
 	"proyecto_go/persistence/entities"
 )
 
-func CreatePayment(payment entities.Payment) (entities.Payment, error) {
+func FindNextPaymentsByUserSub(sub string) []entities.Payment {
 
 	db := persistence.GetConnection()
-	err := db.Create(&payment)
+	var payments []entities.Payment
 
-	if err.Error != nil {
-		return payment, err.Error
-	}
+	query := "select p.* from payments p,subscriptions s,users u,user_subscriptions us where p.subscription_id = s.id and s.subscription_id = us.id and u.id = us.user_id and u.user_sub = ? and p.status = 'PENDING'"
 
-	return payment, nil
+	db.Raw(query, sub).Scan(&payments)
+
+	return payments
 }
