@@ -3,6 +3,7 @@ package repositories
 import (
 	"proyecto_go/persistence"
 	"proyecto_go/persistence/entities"
+	"time"
 )
 
 func CreateNotification(notification entities.Notifications) (entities.Notifications, error) {
@@ -27,7 +28,7 @@ func GetNotificationsByUserSub(sub string) []entities.Notifications {
 
 	var notifications []entities.Notifications
 
-	db.Where("user_id = ?", user.Id).Find(&notifications)
+	db.Where("user_id = ? and notification_date = "+time.Now().String(), user.Id).Find(&notifications)
 
 	return notifications
 }

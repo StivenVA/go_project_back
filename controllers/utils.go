@@ -48,5 +48,9 @@ func GetEndPoints() []func() (string, http.HandlerFunc) {
 		GetSubscriptions,
 		CreateCategory,
 		GetCategories,
+		GetPayments,
+		UpdatePayment,
+		GetNextPayments,
+		GetUserNotifications,
 	}
 }

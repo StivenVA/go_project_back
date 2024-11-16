@@ -40,3 +40,33 @@ func containsPayment(payments []entities.Payment, payment entities.Payment) bool
 	}
 	return false
 }
+
+func GetPayments(idToken string) (any, error) {
+
+	sub, err := ExtractSubClaim(idToken)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var user = repositories.FindUserBySub(sub)
+
+	var payments = repositories.GetPaymentsBySub(user.UserSub)
+
+	return entities.PaymentToDTOList(payments), nil
+}
+
+func GetNextPayments(idToken string) (any, error) {
+
+	sub, err := ExtractSubClaim(idToken)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var user = repositories.FindUserBySub(sub)
+
+	var payments = repositories.FindNextPaymentsByUserSub(user.UserSub)
+
+	return entities.PaymentToDTOList(payments), nil
+}

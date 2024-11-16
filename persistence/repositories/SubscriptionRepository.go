@@ -51,3 +51,18 @@ func FindSubscriptionByUserSub(sub string) entities.UserSubscription {
 
 	return subscription
 }
+
+func FindSubscriptionDetailById(id uint) entities.SubscriptionDetail {
+
+	db := persistence.GetConnection()
+
+	var subscription entities.SubscriptionDetail
+
+	db.Where("id = ?", id).First(&subscription)
+
+	var category entities.Category
+	db.Where("id = ?", subscription.CategoryId).First(&category)
+	subscription.Category = category
+
+	return subscription
+}

@@ -1,6 +1,10 @@
 package entities
 
-import "time"
+import (
+	"proyecto_go/DTO/response"
+	"proyecto_go/persistence/repositories"
+	"time"
+)
 
 type Payment struct {
 	Id                 uint               `json:"payment_id" gorm:"primaryKey"`
@@ -21,4 +25,26 @@ func (p *Payment) EntityName() string {
 
 func (p *Payment) EntityFields() []string {
 	return []string{"Id", "SubscriptionDetail", "Date", "Amount", "Status"}
+}
+
+func (p *Payment) PaymentToDTO() response.PaymentResponse {
+
+	var subscription = repositories.FindSubscriptionDetailById(p.SubscriptionId)
+
+	return response.PaymentResponse{
+		Id:      p.Id,
+		Date:    p.PaymentDate.Format("2006-01-02"),
+		Amount:  p.Amount,
+		Status:  string(p.PaymentStatus),
+		Service: subscription.Service,
+	}
+
+}
+
+func PaymentToDTOList(payments []Payment) []response.PaymentResponse {
+	var paymentsDTO []response.PaymentResponse
+	for _, payment := range payments {
+		paymentsDTO = append(paymentsDTO, payment.PaymentToDTO())
+	}
+	return paymentsDTO
 }

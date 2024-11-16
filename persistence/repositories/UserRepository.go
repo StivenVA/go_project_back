@@ -37,4 +37,5 @@ func CreateUser(user entities.User) (entities.User, error) {
 	}
 
 	return user, nil
+	
 }

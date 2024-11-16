@@ -92,7 +92,10 @@ func CreateCategory(idToken string, categoryDTO response.CategoryDTO) (any, erro
 		return "Error creating category", err
 	}
 
-	return category, nil
+	return response.CategoryDTO{
+		Id:   category.Id,
+		Name: category.Name,
+	}, nil
 }
 
 func GetCategories(idToken string) (any, error) {

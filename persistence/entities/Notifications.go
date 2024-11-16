@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"proyecto_go/DTO/response"
+	"time"
+)
 
 type Notifications struct {
 	Id                  uint                 `json:"notification_id" gorm:"primaryKey"`
@@ -22,4 +25,21 @@ func (n *Notifications) EntityName() string {
 
 func (n *Notifications) EntityFields() []string {
 	return []string{"Id", "UserId", "SubscriptionDetail", "Date", "Status", "Message"}
+}
+
+func (n *Notifications) NotificationToDTO() response.NotificationDTO {
+	return response.NotificationDTO{
+		NotificationId: n.Id,
+		UserId:         n.UserId,
+		Message:        n.NotificationMessage,
+		Status:         n.NotificationStatus,
+	}
+}
+
+func NotificationToDTOList(notifications []Notifications) []response.NotificationDTO {
+	var notificationsDTO []response.NotificationDTO
+	for _, notification := range notifications {
+		notificationsDTO = append(notificationsDTO, notification.NotificationToDTO())
+	}
+	return notificationsDTO
 }
